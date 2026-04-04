@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState, useEffect } from "react";
-import { Level } from "@/lib/lessons/types";
+import { Level } from "@/lib/tracks/types";
 import { useVirtualFS } from "@/hooks/useVirtualFS";
 import { useTerminal } from "@/hooks/useTerminal";
 import { useLesson } from "@/hooks/useLesson";
@@ -13,11 +13,17 @@ import { TaskCard } from "./TaskCard";
 import { LevelComplete } from "./LevelComplete";
 import { WelcomeModal } from "./WelcomeModal";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { LevelIcon } from "@/lib/level-icons";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-export function LessonShell({ level }: { level: Level }) {
+interface LessonShellProps {
+  level: Level;
+  trackSlug: string;
+  trackTitle: string;
+  nextLevel: Level | null;
+}
+
+export function LessonShell({ level, trackSlug, trackTitle, nextLevel }: LessonShellProps) {
   const { fs, version } = useVirtualFS(level.initialFS);
   const [isDesktop, setIsDesktop] = useState(false);
   const [zOrder, setZOrder] = useState<("task" | "terminal" | "finder")[]>([
@@ -63,7 +69,7 @@ export function LessonShell({ level }: { level: Level }) {
     isComplete,
     validateCommand,
     hint,
-  } = useLesson(level, fs);
+  } = useLesson(level, trackSlug, fs);
 
   const terminal = useTerminal(fs, level.availableCommands);
 
@@ -78,8 +84,8 @@ export function LessonShell({ level }: { level: Level }) {
   );
 
   const handleComplete = useCallback(() => {
-    completeLevel(level.id);
-  }, [level.id]);
+    completeLevel(trackSlug, level.slug);
+  }, [trackSlug, level.slug]);
 
   const handleFinderNavigate = useCallback(
     (path: string) => {
@@ -99,11 +105,11 @@ export function LessonShell({ level }: { level: Level }) {
         <WelcomeModal />
         <div className="flex items-center justify-between px-4 py-2 border-b border-card-border bg-bg-elevated shrink-0">
           <Link
-            href="/"
+            href={`/track/${trackSlug}`}
             className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1"
           >
             <ArrowLeft size={12} strokeWidth={1.5} />
-            Levels
+            {trackTitle}
           </Link>
           <ThemeToggle />
         </div>
@@ -114,8 +120,9 @@ export function LessonShell({ level }: { level: Level }) {
           lastResult={lastResult}
           showHint={showHint}
           hint={hint}
-          levelId={level.id}
+          levelIcon={level.icon}
           levelTitle={level.title}
+          trackTitle={trackTitle}
           mobile
         />
         <div className="flex flex-col flex-1 gap-2 p-2 min-h-0">
@@ -133,7 +140,15 @@ export function LessonShell({ level }: { level: Level }) {
             <FinderWindow fs={fs} version={version} onNavigate={handleFinderNavigate} />
           </div>
         </div>
-        {isComplete && <LevelComplete level={level} onComplete={handleComplete} />}
+        {isComplete && (
+          <LevelComplete
+            level={level}
+            trackSlug={trackSlug}
+            trackTitle={trackTitle}
+            nextLevel={nextLevel}
+            onComplete={handleComplete}
+          />
+        )}
       </div>
     );
   }
@@ -146,15 +161,13 @@ export function LessonShell({ level }: { level: Level }) {
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-bg/80 backdrop-blur-sm border-b border-card-border z-50">
         <Link
-          href="/"
+          href={`/track/${trackSlug}`}
           className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1"
         >
           <ArrowLeft size={12} strokeWidth={1.5} />
-          Levels
+          {trackTitle}
         </Link>
-        <span className="text-[11px] text-text-muted">
-          Level {level.id} / {level.title}
-        </span>
+        <span className="text-[11px] text-text-muted">{level.title}</span>
         <ThemeToggle />
       </div>
 
@@ -178,8 +191,9 @@ export function LessonShell({ level }: { level: Level }) {
           lastResult={lastResult}
           showHint={showHint}
           hint={hint}
-          levelId={level.id}
+          levelIcon={level.icon}
           levelTitle={level.title}
+          trackTitle={trackTitle}
         />
       </div>
 
@@ -230,7 +244,15 @@ export function LessonShell({ level }: { level: Level }) {
         />
       </div>
 
-      {isComplete && <LevelComplete level={level} onComplete={handleComplete} />}
+      {isComplete && (
+        <LevelComplete
+          level={level}
+          trackSlug={trackSlug}
+          trackTitle={trackTitle}
+          nextLevel={nextLevel}
+          onComplete={handleComplete}
+        />
+      )}
     </div>
   );
 }

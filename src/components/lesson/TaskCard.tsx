@@ -1,6 +1,6 @@
 "use client";
 
-import { Task } from "@/lib/lessons/types";
+import { Task } from "@/lib/tracks/types";
 import { ValidationResult } from "@/lib/lessons/engine";
 import { LevelIcon } from "@/lib/level-icons";
 import { Lightbulb } from "lucide-react";
@@ -13,8 +13,9 @@ interface TaskCardProps {
   lastResult: ValidationResult | null;
   showHint: boolean;
   hint: string | null;
-  levelId: number;
+  levelIcon: string;
   levelTitle: string;
+  trackTitle: string;
   mobile?: boolean;
 }
 
@@ -25,8 +26,9 @@ export function TaskCard({
   lastResult,
   showHint,
   hint,
-  levelId,
+  levelIcon,
   levelTitle,
+  trackTitle,
   mobile,
 }: TaskCardProps) {
   const progress = Math.min(taskIndex, totalTasks);
@@ -35,9 +37,9 @@ export function TaskCard({
     return (
       <div className="bg-bg-elevated border-b border-card-border px-4 py-3 shrink-0">
         <div className="flex items-center gap-2 mb-2">
-          <LevelIcon levelId={levelId} size={16} className="text-accent" />
+          <LevelIcon icon={levelIcon} size={16} className="text-accent" />
           <span className="text-xs text-text-muted">
-            Level {levelId}: {levelTitle}
+            {trackTitle} / {levelTitle}
           </span>
           <span className="ml-auto text-[10px] text-text-muted">
             {progress}/{totalTasks}
@@ -80,12 +82,12 @@ export function TaskCard({
         {/* Level icon + title — big and prominent */}
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
-            <LevelIcon levelId={levelId} size={20} className="text-accent" />
+            <LevelIcon icon={levelIcon} size={20} className="text-accent" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-text-bright leading-tight">{levelTitle}</h2>
             <span className="text-[10px] text-text-muted uppercase tracking-wider">
-              Level {levelId}
+              {trackTitle}
             </span>
           </div>
         </div>

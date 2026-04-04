@@ -1,6 +1,5 @@
 import { VirtualFS } from "@/lib/filesystem/VirtualFS";
-import { Level, Task, TaskValidation } from "./types";
-import { ParsedCommand } from "@/lib/commands/types";
+import { Level, Task, TaskValidation } from "@/lib/tracks/types";
 
 export interface ValidationResult {
   passed: boolean;
@@ -51,7 +50,7 @@ export class LessonEngine {
     command: string,
     args: string[],
     flags: Record<string, boolean>,
-    fs: VirtualFS
+    fs: VirtualFS,
   ): ValidationResult {
     const task = this.currentTask;
     if (!task) return { passed: false, showHint: false };
@@ -86,7 +85,7 @@ function checkValidation(
   command: string,
   args: string[],
   flags: Record<string, boolean>,
-  fs: VirtualFS
+  fs: VirtualFS,
 ): boolean {
   switch (v.type) {
     case "command":
@@ -95,9 +94,7 @@ function checkValidation(
         const fullArgs = Object.keys(flags)
           .map((f) => (f.length === 1 ? `-${f}` : `--${f}`))
           .concat(args);
-        return v.argsContain.every((a) =>
-          fullArgs.some((fa) => fa.includes(a))
-        );
+        return v.argsContain.every((a) => fullArgs.some((fa) => fa.includes(a)));
       }
       return true;
 

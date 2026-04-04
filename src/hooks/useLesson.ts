@@ -2,12 +2,12 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { VirtualFS } from "@/lib/filesystem/VirtualFS";
-import { Level } from "@/lib/lessons/types";
+import { Level } from "@/lib/tracks/types";
 import { LessonEngine, ValidationResult } from "@/lib/lessons/engine";
 import { parseCommand } from "@/lib/commands/parser";
 import { saveTaskProgress, incrementCommands } from "@/lib/progress";
 
-export function useLesson(level: Level, fs: VirtualFS) {
+export function useLesson(level: Level, trackSlug: string, fs: VirtualFS) {
   const engineRef = useRef<LessonEngine>(new LessonEngine(level));
   const [taskIndex, setTaskIndex] = useState(0);
   const [lastResult, setLastResult] = useState<ValidationResult | null>(null);
@@ -23,7 +23,7 @@ export function useLesson(level: Level, fs: VirtualFS) {
       const raw = localStorage.getItem("tryterminal-progress");
       if (raw) {
         const data = JSON.parse(raw);
-        const saved = data.taskProgress?.[level.id];
+        const saved = data.tracks?.[trackSlug]?.taskProgress?.[level.slug];
         if (saved && saved > 0) {
           engine.setTaskIndex(saved);
           setTaskIndex(saved);
@@ -32,7 +32,7 @@ export function useLesson(level: Level, fs: VirtualFS) {
     } catch {
       // ignore
     }
-  }, [level.id, engine]);
+  }, [trackSlug, level.slug, engine]);
 
   const validateCommand = useCallback(
     (input: string) => {
@@ -42,12 +42,7 @@ export function useLesson(level: Level, fs: VirtualFS) {
       const parsed = parseCommand(input);
       if (!parsed) return;
 
-      const result = engine.validate(
-        parsed.command,
-        parsed.args,
-        parsed.flags,
-        fs
-      );
+      const result = engine.validate(parsed.command, parsed.args, parsed.flags, fs);
 
       setLastResult(result);
 
@@ -55,7 +50,7 @@ export function useLesson(level: Level, fs: VirtualFS) {
         setShowHint(false);
         const newIndex = engine.currentTaskIndex;
         setTaskIndex(newIndex);
-        saveTaskProgress(level.id, newIndex);
+        saveTaskProgress(trackSlug, level.slug, newIndex);
 
         if (engine.isComplete) {
           setIsComplete(true);
@@ -64,7 +59,7 @@ export function useLesson(level: Level, fs: VirtualFS) {
         setShowHint(true);
       }
     },
-    [engine, fs, level.id]
+    [engine, fs, trackSlug, level.slug],
   );
 
   return {
