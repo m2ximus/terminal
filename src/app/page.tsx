@@ -10,7 +10,7 @@ import {
   GitBranch,
   Zap,
 } from "lucide-react";
-import { LevelSliderWrapper } from "@/components/landing/LevelSliderWrapper";
+import { TrackGridWrapper } from "@/components/landing/TrackGridWrapper";
 import { ProgressCTA } from "@/components/landing/ProgressCTA";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ClaudeMark } from "@/components/ClaudeLogo";
@@ -31,10 +31,10 @@ export default function Home() {
             How it works
           </a>
           <a
-            href="#levels"
+            href="#tracks"
             className="text-xs text-text-muted hover:text-text transition-colors hidden sm:block"
           >
-            Levels
+            Tracks
           </a>
           <Link
             href="/speed-test"
@@ -169,7 +169,7 @@ export default function Home() {
               </div>
               <h3 className="text-sm font-bold text-text-bright mb-2">Install Claude Code</h3>
               <p className="text-sm text-text-muted leading-relaxed max-w-[40ch]">
-                By Level 8, you know enough to install and run{" "}
+                By the Claude Code track, you know enough to install and run{" "}
                 <a
                   href="https://claude.ai/code"
                   className="text-accent hover:underline"
@@ -208,10 +208,10 @@ export default function Home() {
 
           <div className="p-6 rounded-xl border border-card-border bg-card-bg">
             <Layers size={20} strokeWidth={1.5} className="text-accent mb-3" />
-            <h3 className="text-sm font-bold text-text-bright mb-1">8 progressive levels</h3>
+            <h3 className="text-sm font-bold text-text-bright mb-1">6 learning tracks</h3>
             <p className="text-xs text-text-muted leading-relaxed max-w-[40ch]">
-              From &quot;what is pwd?&quot; to git repos and npm. Each level builds on the last.
-              Unlock as you go.
+              From &quot;what is pwd?&quot; to git repos and Claude Code. Each track builds on the
+              last. Unlock as you go.
             </p>
           </div>
 
@@ -219,26 +219,25 @@ export default function Home() {
             <GitBranch size={20} strokeWidth={1.5} className="text-accent mb-3" />
             <h3 className="text-sm font-bold text-text-bright mb-1">Built for Claude Code</h3>
             <p className="text-xs text-text-muted leading-relaxed max-w-[40ch]">
-              The whole course gets you ready. Level 8 walks you through installing and launching
-              Claude Code.
+              The whole course gets you ready. The Claude Code track walks you through installing
+              and launching Claude Code.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── Level slider ── */}
-      <section id="levels" className="bg-section-bg border-y border-card-border">
+      {/* ── Track grid ── */}
+      <section id="tracks" className="bg-section-bg border-y border-card-border">
         <div className="max-w-[1400px] mx-auto w-full px-6 py-20">
           <p className="text-xs text-accent uppercase tracking-wider mb-3">Curriculum</p>
           <h2 className="text-2xl md:text-3xl font-bold text-text-bright tracking-tighter mb-3">
-            8 levels to terminal mastery
+            6 tracks to terminal mastery
           </h2>
           <p className="text-sm text-text-muted mb-10 max-w-md">
-            Each level unlocks as you complete the last. Scroll through to see what you&apos;ll
-            learn.
+            Pick your path. Each track unlocks as you complete its prerequisites.
           </p>
 
-          <LevelSliderWrapper />
+          <TrackGridWrapper />
         </div>
       </section>
 

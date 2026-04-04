@@ -53,11 +53,13 @@ export function TrackIcon({
   trackSlug,
   size = 24,
   className = "",
+  style,
 }: {
   trackSlug: string;
   size?: number;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   const Icon = TRACK_ICONS[trackSlug] || Compass;
-  return <Icon size={size} strokeWidth={1.5} className={className} />;
+  return <Icon size={size} strokeWidth={1.5} className={className} style={style} />;
 }
