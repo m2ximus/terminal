@@ -1,6 +1,7 @@
 import { VirtualFS } from "@/lib/filesystem/VirtualFS";
 import { ParsedCommand, CommandHandler, CommandResult } from "./types";
 import { parseCommand } from "./parser";
+import { findCommandTrack } from "@/lib/tracks";
 
 // Import all handlers
 import { pwd } from "./handlers/pwd";
@@ -57,11 +58,7 @@ const ALL_COMMANDS: Record<string, CommandHandler> = {
 export class CommandExecutor {
   private commandHistory: string[] = [];
 
-  execute(
-    input: string,
-    fs: VirtualFS,
-    availableCommands: string[]
-  ): CommandResult {
+  execute(input: string, fs: VirtualFS, availableCommands: string[]): CommandResult {
     const parsed = parseCommand(input);
     if (!parsed) {
       return { output: "", outputType: "stdout" };
@@ -74,7 +71,7 @@ export class CommandExecutor {
   private executeParsed(
     parsed: ParsedCommand,
     fs: VirtualFS,
-    availableCommands: string[]
+    availableCommands: string[],
   ): CommandResult {
     const handler = ALL_COMMANDS[parsed.command];
 
@@ -88,7 +85,7 @@ export class CommandExecutor {
     // Check if command is available in current level
     if (!availableCommands.includes(parsed.command)) {
       return {
-        output: getLockedMessage(parsed.command),
+        output: getTrackAwareLockedMessage(parsed.command),
         outputType: "info",
       };
     }
@@ -129,39 +126,15 @@ export class CommandExecutor {
   }
 }
 
-// ── Sarcastic locked command messages ──
-
-const SNARKY_MESSAGES = [
-  (cmd: string) =>
-    `Whoa there, hotshot — '${cmd}' is locked. Someone's been using Terminal before, huh?`,
-  (cmd: string) =>
-    `'${cmd}'? Bit ahead of ourselves, aren't we? Finish this level first, speedrunner.`,
-  (cmd: string) =>
-    `Nice try with '${cmd}'. If this is too easy, try the Speed Test — tryterminal.dev/speed-test`,
-  (cmd: string) =>
-    `'${cmd}' isn't available yet. But respect for jumping the gun. Keep going and you'll unlock it soon.`,
-  (cmd: string) =>
-    `Hold up — '${cmd}' is a few levels away. Patience, young terminal warrior.`,
-  (cmd: string) =>
-    `'${cmd}'? Look at you, already thinking ahead. Complete this level and it's all yours.`,
-  (cmd: string) =>
-    `Slow down, hacker. '${cmd}' unlocks later. If you already know this stuff, go try the Speed Test.`,
-  (cmd: string) =>
-    `Someone knows their way around a terminal... '${cmd}' is locked here though. Skip ahead?`,
-  (cmd: string) =>
-    `'${cmd}' is locked. If you're too cool for this level, the Speed Test is waiting for you.`,
-  (cmd: string) =>
-    `Ooh, '${cmd}' — fancy. You'll get there. One level at a time.`,
-];
-
-let lastSnarkIndex = -1;
-
-function getLockedMessage(cmd: string): string {
-  let idx = Math.floor(Math.random() * SNARKY_MESSAGES.length);
-  // Avoid repeating the same message twice in a row
-  if (idx === lastSnarkIndex) {
-    idx = (idx + 1) % SNARKY_MESSAGES.length;
+export function getTrackAwareLockedMessage(cmd: string): string {
+  const result = findCommandTrack(cmd);
+  if (result) {
+    return `'${cmd}' is covered in the ${result.track.title} track. Head there to unlock it!`;
   }
-  lastSnarkIndex = idx;
-  return SNARKY_MESSAGES[idx](cmd);
+  const fallbacks = [
+    `'${cmd}' isn't available here. Try the Speed Test if this is too easy — tryterminal.dev/speed-test`,
+    `'${cmd}'? Nice try — but it's not part of this level.`,
+    `Hold up — '${cmd}' isn't unlocked yet. Keep going!`,
+  ];
+  return fallbacks[Math.floor(Math.random() * fallbacks.length)];
 }
