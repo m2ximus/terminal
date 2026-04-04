@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Play, Trophy, Timer, Zap, RotateCcw } from "lucide-react";
+import { ArrowLeft, Play, Trophy, Zap, RotateCcw } from "lucide-react";
+import { SpeedTimer } from "@/components/speed-test/SpeedTimer";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Terminal } from "@/components/terminal/Terminal";
 import { useTerminal } from "@/hooks/useTerminal";
 import { useVirtualFS } from "@/hooks/useVirtualFS";
-import { VirtualFS, HOME } from "@/lib/filesystem/VirtualFS";
 import { parseCommand } from "@/lib/commands/parser";
 import {
   Challenge,
@@ -19,47 +19,72 @@ import {
 import { createLevel1FS } from "@/lib/filesystem/initial-states";
 
 const ALL_COMMANDS = [
-  "pwd", "ls", "clear", "help", "cd", "mkdir", "touch", "open",
-  "cp", "mv", "rm", "cat", "head", "tail", "echo", "find", "grep",
-  "chmod", "which", "history", "alias", "npm", "npx", "git", "claude",
+  "pwd",
+  "ls",
+  "clear",
+  "help",
+  "cd",
+  "mkdir",
+  "touch",
+  "open",
+  "cp",
+  "mv",
+  "rm",
+  "cat",
+  "head",
+  "tail",
+  "echo",
+  "find",
+  "grep",
+  "chmod",
+  "which",
+  "history",
+  "alias",
+  "npm",
+  "npx",
+  "git",
+  "claude",
 ];
 
 type GameState = "idle" | "playing" | "finished";
+
+function formatTime(ms: number) {
+  const secs = ms / 1000;
+  if (secs < 60) return `${secs.toFixed(1)}s`;
+  const mins = Math.floor(secs / 60);
+  const remainder = (secs % 60).toFixed(1);
+  return `${mins}m ${remainder}s`;
+}
+
+const diffColor: Record<string, string> = {
+  easy: "text-accent",
+  medium: "text-term-yellow",
+  hard: "text-term-red",
+};
 
 export default function SpeedTestPage() {
   const [gameState, setGameState] = useState<GameState>("idle");
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startTime, setStartTime] = useState(0);
-  const [elapsed, setElapsed] = useState(0);
+  const [finalTime, setFinalTime] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [playerName, setPlayerName] = useState("");
   const [saved, setSaved] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
-  const { fs, version } = useVirtualFS(createLevel1FS);
+  const { fs } = useVirtualFS(createLevel1FS);
   const terminal = useTerminal(fs, ALL_COMMANDS);
 
   useEffect(() => {
     setLeaderboard(loadLeaderboard());
   }, []);
 
-  // Timer
-  useEffect(() => {
-    if (gameState === "playing") {
-      timerRef.current = setInterval(() => {
-        setElapsed(Date.now() - startTime);
-      }, 50);
-    }
-    return () => clearInterval(timerRef.current);
-  }, [gameState, startTime]);
-
   const startGame = useCallback(() => {
     const round = generateRound(10);
     setChallenges(round);
     setCurrentIndex(0);
     setStartTime(Date.now());
-    setElapsed(0);
+    setFinalTime(0);
     setGameState("playing");
     setSaved(false);
     setPlayerName("");
@@ -80,53 +105,36 @@ export default function SpeedTestPage() {
       const challenge = challenges[currentIndex];
       if (!challenge) return;
 
-      const passed = challenge.check(
-        fs,
-        parsed.command,
-        parsed.args
-      );
+      const passed = challenge.check(fs, parsed.command, parsed.args);
 
       if (passed) {
         const next = currentIndex + 1;
         if (next >= challenges.length) {
           // Done!
-          setElapsed(Date.now() - startTime);
+          const final_ = Date.now() - startTime;
+          setFinalTime(final_);
           setGameState("finished");
-          clearInterval(timerRef.current);
         } else {
           setCurrentIndex(next);
         }
       }
     },
-    [terminal, gameState, challenges, currentIndex, fs, startTime]
+    [terminal, gameState, challenges, currentIndex, fs, startTime],
   );
 
   const handleSave = useCallback(() => {
     if (!playerName.trim()) return;
     const lb = saveToLeaderboard({
       name: playerName.trim(),
-      time: elapsed,
+      time: finalTime,
       challenges: challenges.length,
       date: new Date().toISOString().split("T")[0],
     });
     setLeaderboard(lb);
     setSaved(true);
-  }, [playerName, elapsed, challenges.length]);
-
-  const formatTime = (ms: number) => {
-    const secs = ms / 1000;
-    if (secs < 60) return `${secs.toFixed(1)}s`;
-    const mins = Math.floor(secs / 60);
-    const remainder = (secs % 60).toFixed(1);
-    return `${mins}m ${remainder}s`;
-  };
+  }, [playerName, finalTime, challenges.length]);
 
   const currentChallenge = challenges[currentIndex];
-  const diffColor: Record<string, string> = {
-    easy: "text-accent",
-    medium: "text-term-yellow",
-    hard: "text-term-red",
-  };
 
   return (
     <div className="min-h-screen bg-bg flex flex-col">
@@ -185,7 +193,9 @@ export default function SpeedTestPage() {
                           key={`${entry.name}-${entry.time}-${i}`}
                           className="flex items-center gap-2 text-[11px] py-1 px-2 rounded bg-card-bg border border-card-border"
                         >
-                          <span className={`w-5 font-bold tabular-nums ${i < 3 ? "text-term-yellow" : "text-text-muted"}`}>
+                          <span
+                            className={`w-5 font-bold tabular-nums ${i < 3 ? "text-term-yellow" : "text-text-muted"}`}
+                          >
                             {i + 1}.
                           </span>
                           <span className="flex-1 text-text truncate">{entry.name}</span>
@@ -204,12 +214,7 @@ export default function SpeedTestPage() {
               <div className="space-y-4">
                 {/* Timer + progress */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Timer size={14} strokeWidth={1.5} className="text-text-muted" />
-                    <span className="text-lg font-bold text-accent tabular-nums">
-                      {formatTime(elapsed)}
-                    </span>
-                  </div>
+                  <SpeedTimer startTime={startTime} running={gameState === "playing"} />
                   <span className="text-xs text-text-muted tabular-nums">
                     {currentIndex + 1} / {challenges.length}
                   </span>
@@ -219,13 +224,15 @@ export default function SpeedTestPage() {
                 <div className="h-1 bg-accent/10 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-accent rounded-full transition-all duration-300"
-                    style={{ width: `${((currentIndex) / challenges.length) * 100}%` }}
+                    style={{ width: `${(currentIndex / challenges.length) * 100}%` }}
                   />
                 </div>
 
                 {/* Challenge */}
                 <div className="bg-card-bg border border-card-border rounded-lg p-4">
-                  <span className={`text-[10px] uppercase tracking-wider font-bold ${diffColor[currentChallenge.difficulty]}`}>
+                  <span
+                    className={`text-[10px] uppercase tracking-wider font-bold ${diffColor[currentChallenge.difficulty]}`}
+                  >
                     {currentChallenge.difficulty}
                   </span>
                   <p className="text-base font-bold text-text-bright mt-1">
@@ -241,9 +248,7 @@ export default function SpeedTestPage() {
                   <div className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
                     <Zap size={28} strokeWidth={1.5} className="text-accent" />
                   </div>
-                  <h2 className="text-2xl font-bold text-text-bright">
-                    {formatTime(elapsed)}
-                  </h2>
+                  <h2 className="text-2xl font-bold text-text-bright">{formatTime(finalTime)}</h2>
                   <p className="text-sm text-text-muted mt-1">
                     {challenges.length} challenges completed
                   </p>
@@ -271,9 +276,7 @@ export default function SpeedTestPage() {
                     </button>
                   </div>
                 ) : (
-                  <p className="text-sm text-accent text-center font-medium">
-                    Score saved
-                  </p>
+                  <p className="text-sm text-accent text-center font-medium">Score saved</p>
                 )}
 
                 <button

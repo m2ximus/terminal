@@ -14,14 +14,15 @@ interface UseDraggableOptions {
 
 export function useDraggable({ initialPosition, onFocus }: UseDraggableOptions) {
   const [position, setPosition] = useState<Position>(initialPosition);
-  const [isDragging, setIsDragging] = useState(false);
+  const isDraggingRef = useRef(false);
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
   const posRef = useRef(initialPosition);
+  const elementRef = useRef<HTMLDivElement | null>(null);
 
-  // Sync ref with state
-  useEffect(() => {
-    posRef.current = position;
-  }, [position]);
+  // Callback ref — avoids react-hooks/refs lint rule
+  const containerRef = useCallback((node: HTMLDivElement | null) => {
+    elementRef.current = node;
+  }, []);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -32,26 +33,37 @@ export function useDraggable({ initialPosition, onFocus }: UseDraggableOptions) 
 
       e.preventDefault();
       onFocus?.();
-      setIsDragging(true);
+      isDraggingRef.current = true;
       dragOffset.current = {
         x: e.clientX - posRef.current.x,
         y: e.clientY - posRef.current.y,
       };
+      // Set grabbing cursor on body during drag
+      document.body.style.cursor = "grabbing";
+      document.body.style.userSelect = "none";
     },
-    [onFocus]
+    [onFocus],
   );
 
   useEffect(() => {
-    if (!isDragging) return;
-
     const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
       const newX = e.clientX - dragOffset.current.x;
       const newY = e.clientY - dragOffset.current.y;
-      setPosition({ x: newX, y: newY });
+      posRef.current = { x: newX, y: newY };
+      // Direct DOM manipulation — bypasses React entirely
+      if (elementRef.current) {
+        elementRef.current.style.transform = `translate(${newX}px, ${newY}px)`;
+      }
     };
 
     const handleMouseUp = () => {
-      setIsDragging(false);
+      if (!isDraggingRef.current) return;
+      isDraggingRef.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      // Commit final position to React state
+      setPosition({ ...posRef.current });
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -60,15 +72,14 @@ export function useDraggable({ initialPosition, onFocus }: UseDraggableOptions) 
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDragging]);
+  }, []);
 
   return {
     position,
-    isDragging,
+    containerRef,
     handleMouseDown,
     style: {
       transform: `translate(${position.x}px, ${position.y}px)`,
-      cursor: isDragging ? "grabbing" : undefined,
     } as React.CSSProperties,
   };
 }

@@ -4,6 +4,7 @@ import { Task } from "@/lib/lessons/types";
 import { ValidationResult } from "@/lib/lessons/engine";
 import { LevelIcon } from "@/lib/level-icons";
 import { Lightbulb } from "lucide-react";
+import { TrafficLights } from "@/components/ui/TrafficLights";
 
 interface TaskCardProps {
   task: Task | null;
@@ -65,18 +66,14 @@ export function TaskCard({
   }
 
   return (
-    <div className="bg-card-bg border border-card-border rounded-lg shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] overflow-hidden">
+    <div className="bg-card-bg border border-card-border rounded-lg shadow-window overflow-hidden">
       {/* Drag handle */}
       <div
         data-drag-handle
         className="px-3 py-2 bg-bg-elevated border-b border-card-border cursor-grab active:cursor-grabbing select-none flex items-center gap-[6px]"
       >
-        <div className="w-[12px] h-[12px] rounded-full bg-[#ff5f57] border border-[#e0443e]/50" />
-        <div className="w-[12px] h-[12px] rounded-full bg-[#febc2e] border border-[#d4a123]/50" />
-        <div className="w-[12px] h-[12px] rounded-full bg-[#28c840] border border-[#1aab29]/50" />
-        <span className="flex-1 text-center text-[11px] text-text-muted">
-          Task
-        </span>
+        <TrafficLights />
+        <span className="flex-1 text-center text-[11px] text-text-muted">Task</span>
       </div>
 
       <div className="p-4">
@@ -86,9 +83,7 @@ export function TaskCard({
             <LevelIcon levelId={levelId} size={20} className="text-accent" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-text-bright leading-tight">
-              {levelTitle}
-            </h2>
+            <h2 className="text-lg font-bold text-text-bright leading-tight">{levelTitle}</h2>
             <span className="text-[10px] text-text-muted uppercase tracking-wider">
               Level {levelId}
             </span>
@@ -133,9 +128,7 @@ export function TaskCard({
           </div>
         )}
 
-        {!task && (
-          <p className="text-[12px] text-accent font-medium">Level complete</p>
-        )}
+        {!task && <p className="text-[12px] text-accent font-medium">Level complete</p>}
       </div>
     </div>
   );
@@ -145,14 +138,11 @@ function formatInstruction(text: string): string {
   return text
     .replace(
       /\*\*`([^`]+)`\*\*/g,
-      '<span class="inline-flex items-center gap-1 my-0.5"><span class="text-[9px] text-text-muted uppercase tracking-wide">type</span><code class="bg-accent/15 border border-accent/30 px-2 py-0.5 rounded text-accent font-bold text-[12px]">$1</code></span>'
+      '<span class="inline-flex items-center gap-1 my-0.5"><span class="text-[9px] text-text-muted uppercase tracking-wide">type</span><code class="bg-accent/15 border border-accent/30 px-2 py-0.5 rounded text-accent font-bold text-[12px]">$1</code></span>',
     )
     .replace(
       /`([^`]+)`/g,
-      '<code class="bg-accent/10 px-1 py-0.5 rounded text-accent text-[11px]">$1</code>'
+      '<code class="bg-accent/10 px-1 py-0.5 rounded text-accent text-[11px]">$1</code>',
     )
-    .replace(
-      /\*\*([^*]+)\*\*/g,
-      '<strong class="text-text-bright font-semibold">$1</strong>'
-    );
+    .replace(/\*\*([^*]+)\*\*/g, '<strong class="text-text-bright font-semibold">$1</strong>');
 }

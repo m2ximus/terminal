@@ -27,21 +27,18 @@ export function LessonShell({ level }: { level: Level }) {
   ]);
 
   useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 1024);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const bringToFront = useCallback(
-    (id: "task" | "terminal" | "finder") => {
-      setZOrder((prev) => [...prev.filter((w) => w !== id), id]);
-    },
-    []
-  );
+  const bringToFront = useCallback((id: "task" | "terminal" | "finder") => {
+    setZOrder((prev) => [...prev.filter((w) => w !== id), id]);
+  }, []);
 
-  const getZ = (id: "task" | "terminal" | "finder") =>
-    zOrder.indexOf(id) + 10;
+  const getZ = (id: "task" | "terminal" | "finder") => zOrder.indexOf(id) + 10;
 
   // Draggable positions — mostly side by side, ~10% overlap
   const taskDrag = useDraggable({
@@ -77,7 +74,7 @@ export function LessonShell({ level }: { level: Level }) {
         validateCommand(input.trim());
       }
     },
-    [terminal, validateCommand]
+    [terminal, validateCommand],
   );
 
   const handleComplete = useCallback(() => {
@@ -92,7 +89,7 @@ export function LessonShell({ level }: { level: Level }) {
         // Path might not exist
       }
     },
-    [fs]
+    [fs],
   );
 
   // ── Mobile layout ──
@@ -136,9 +133,7 @@ export function LessonShell({ level }: { level: Level }) {
             <FinderWindow fs={fs} version={version} onNavigate={handleFinderNavigate} />
           </div>
         </div>
-        {isComplete && (
-          <LevelComplete level={level} onComplete={handleComplete} />
-        )}
+        {isComplete && <LevelComplete level={level} onComplete={handleComplete} />}
       </div>
     );
   }
@@ -165,6 +160,7 @@ export function LessonShell({ level }: { level: Level }) {
 
       {/* Task card — draggable */}
       <div
+        ref={taskDrag.containerRef}
         className="absolute"
         style={{
           ...taskDrag.style,
@@ -189,6 +185,7 @@ export function LessonShell({ level }: { level: Level }) {
 
       {/* Terminal — draggable */}
       <div
+        ref={termDrag.containerRef}
         className="absolute"
         style={{
           ...termDrag.style,
@@ -213,6 +210,7 @@ export function LessonShell({ level }: { level: Level }) {
 
       {/* Finder — draggable, offset to overlap */}
       <div
+        ref={finderDrag.containerRef}
         className="absolute"
         style={{
           ...finderDrag.style,
@@ -232,9 +230,7 @@ export function LessonShell({ level }: { level: Level }) {
         />
       </div>
 
-      {isComplete && (
-        <LevelComplete level={level} onComplete={handleComplete} />
-      )}
+      {isComplete && <LevelComplete level={level} onComplete={handleComplete} />}
     </div>
   );
 }

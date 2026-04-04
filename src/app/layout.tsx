@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
@@ -8,14 +8,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: "Try Terminal — Learn Command Line Basics",
+  title: {
+    default: "Try Terminal — Learn Command Line Basics",
+    template: "%s | Try Terminal",
+  },
   description:
     "An interactive game that teaches you terminal basics through a visual, hands-on experience. No experience required. Get ready for Claude Code.",
   openGraph: {
     title: "Try Terminal — Learn Command Line Basics",
-    description:
-      "An interactive game that teaches you terminal basics. No experience required.",
+    description: "An interactive game that teaches you terminal basics. No experience required.",
     url: "https://tryterminal.dev",
   },
 };
@@ -26,11 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistMono.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

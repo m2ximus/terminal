@@ -1,21 +1,17 @@
-"use client";
+import { levels, getLevelBySlug } from "@/lib/lessons";
+import LessonClient from "./LessonClient";
 
-import { use } from "react";
-import { notFound } from "next/navigation";
-import { getLevelBySlug } from "@/lib/lessons";
-import { LessonShell } from "@/components/lesson/LessonShell";
+export function generateStaticParams() {
+  return levels.map((level) => ({ level: level.slug }));
+}
 
-export default function LevelPage({
-  params,
-}: {
-  params: Promise<{ level: string }>;
-}) {
-  const { level: slug } = use(params);
+export async function generateMetadata({ params }: { params: Promise<{ level: string }> }) {
+  const { level: slug } = await params;
   const level = getLevelBySlug(slug);
+  if (!level) return {};
+  return { title: `Level ${level.id}: ${level.title}` };
+}
 
-  if (!level) {
-    notFound();
-  }
-
-  return <LessonShell level={level} />;
+export default function LevelPage({ params }: { params: Promise<{ level: string }> }) {
+  return <LessonClient params={params} />;
 }

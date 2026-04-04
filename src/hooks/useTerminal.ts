@@ -30,17 +30,21 @@ export function useTerminal(fs: VirtualFS, availableCommands: string[]) {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const executorRef = useRef(new CommandExecutor());
   const commandHistoryRef = useRef<string[]>([]);
+  const inputValueRef = useRef(inputValue);
+  inputValueRef.current = inputValue;
+  const historyIndexRef = useRef(historyIndex);
+  historyIndexRef.current = historyIndex;
 
   const prompt = getPrompt(fs.cwd);
 
   const executeCommand = useCallback(
     (input: string) => {
+      const currentPrompt = getPrompt(fs.cwd);
       const trimmed = input.trim();
       if (!trimmed) {
-        // Just add an empty prompt line
         setLines((prev) => [
           ...prev,
-          { id: `line-${lineId++}`, type: "input", content: "", prompt },
+          { id: `line-${lineId++}`, type: "input", content: "", prompt: currentPrompt },
         ]);
         setInputValue("");
         return null;
@@ -49,12 +53,11 @@ export function useTerminal(fs: VirtualFS, availableCommands: string[]) {
       commandHistoryRef.current.push(trimmed);
       setHistoryIndex(-1);
 
-      // Add the input line
       const inputLine: TerminalLine = {
         id: `line-${lineId++}`,
         type: "input",
         content: trimmed,
-        prompt,
+        prompt: currentPrompt,
       };
 
       const result = executorRef.current.execute(trimmed, fs, availableCommands);
@@ -79,7 +82,7 @@ export function useTerminal(fs: VirtualFS, availableCommands: string[]) {
       setInputValue("");
       return result;
     },
-    [fs, availableCommands, prompt]
+    [fs, availableCommands],
   );
 
   const handleKeyDown = useCallback(
@@ -89,14 +92,16 @@ export function useTerminal(fs: VirtualFS, availableCommands: string[]) {
         const hist = commandHistoryRef.current;
         if (hist.length === 0) return;
         const newIdx =
-          historyIndex === -1 ? hist.length - 1 : Math.max(0, historyIndex - 1);
+          historyIndexRef.current === -1
+            ? hist.length - 1
+            : Math.max(0, historyIndexRef.current - 1);
         setHistoryIndex(newIdx);
         setInputValue(hist[newIdx]);
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
         const hist = commandHistoryRef.current;
-        if (historyIndex === -1) return;
-        const newIdx = historyIndex + 1;
+        if (historyIndexRef.current === -1) return;
+        const newIdx = historyIndexRef.current + 1;
         if (newIdx >= hist.length) {
           setHistoryIndex(-1);
           setInputValue("");
@@ -106,12 +111,12 @@ export function useTerminal(fs: VirtualFS, availableCommands: string[]) {
         }
       } else if (e.key === "Tab") {
         e.preventDefault();
-        // Tab completion
-        const parts = inputValue.split(" ");
+        const currentInput = inputValueRef.current;
+        const currentPrompt = getPrompt(fs.cwd);
+        const parts = currentInput.split(" ");
         const lastPart = parts[parts.length - 1];
         if (!lastPart) return;
 
-        // Resolve the directory and prefix
         let dirPath: string;
         let prefix: string;
 
@@ -127,7 +132,7 @@ export function useTerminal(fs: VirtualFS, availableCommands: string[]) {
 
         const children = fs.getChildNames(dirPath);
         const matches = children.filter((name) =>
-          name.toLowerCase().startsWith(prefix.toLowerCase())
+          name.toLowerCase().startsWith(prefix.toLowerCase()),
         );
 
         if (matches.length === 1) {
@@ -136,17 +141,15 @@ export function useTerminal(fs: VirtualFS, availableCommands: string[]) {
             ? lastPart.slice(0, lastPart.lastIndexOf("/") + 1) + completed
             : completed;
 
-          // Check if it's a directory to append /
           const fullPath = fs.resolvePath(completedPath);
           const suffix = fs.isDirectory(fullPath) ? "/" : " ";
 
           parts[parts.length - 1] = completedPath + suffix;
           setInputValue(parts.join(" "));
         } else if (matches.length > 1) {
-          // Show options
           setLines((prev) => [
             ...prev,
-            { id: `line-${lineId++}`, type: "input", content: inputValue, prompt },
+            { id: `line-${lineId++}`, type: "input", content: currentInput, prompt: currentPrompt },
             {
               id: `line-${lineId++}`,
               type: "stdout",
@@ -159,14 +162,21 @@ export function useTerminal(fs: VirtualFS, availableCommands: string[]) {
         setLines([]);
       } else if (e.key === "c" && e.ctrlKey) {
         e.preventDefault();
+        const currentInput = inputValueRef.current;
+        const currentPrompt = getPrompt(fs.cwd);
         setLines((prev) => [
           ...prev,
-          { id: `line-${lineId++}`, type: "input", content: inputValue + "^C", prompt },
+          {
+            id: `line-${lineId++}`,
+            type: "input",
+            content: currentInput + "^C",
+            prompt: currentPrompt,
+          },
         ]);
         setInputValue("");
       }
     },
-    [inputValue, historyIndex, fs, prompt]
+    [fs],
   );
 
   return {

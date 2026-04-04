@@ -4,23 +4,23 @@ import { TerminalLine } from "@/hooks/useTerminal";
 
 // Hardcoded — terminal always dark with real macOS Terminal colors
 const TYPE_COLORS: Record<string, string> = {
-  stdout: "text-[#cccccc]",
+  stdout: "text-term-text",
   stderr: "text-[#ff6b6b]",
   info: "text-[#6ec2e8]",
-  success: "text-[#33ff00]",
+  success: "text-term-prompt",
 };
 
 export function TerminalOutput({ line }: { line: TerminalLine }) {
   if (line.type === "input") {
     return (
       <div className="flex">
-        <span className="text-[#33ff00] whitespace-pre">{line.prompt}</span>
-        <span className="text-[#cccccc]">{line.content}</span>
+        <span className="text-term-prompt whitespace-pre">{line.prompt}</span>
+        <span className="text-term-text">{line.content}</span>
       </div>
     );
   }
 
-  const colorClass = TYPE_COLORS[line.type] || "text-[#cccccc]";
+  const colorClass = TYPE_COLORS[line.type] || "text-term-text";
 
   return (
     <div className={`${colorClass} whitespace-pre-wrap break-all`}>

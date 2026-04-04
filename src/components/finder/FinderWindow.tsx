@@ -4,6 +4,7 @@ import { VirtualFS, HOME } from "@/lib/filesystem/VirtualFS";
 import { FinderSidebar } from "./FinderSidebar";
 import { FinderGrid } from "./FinderGrid";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { TrafficLights } from "@/components/ui/TrafficLights";
 
 interface FinderWindowProps {
   fs: VirtualFS;
@@ -36,16 +37,14 @@ export function FinderWindow({ fs, version, onFocus, onNavigate }: FinderWindowP
   const crumbs = getBreadcrumbs(fs.cwd);
   let itemCount = 0;
   try {
-    itemCount = fs
-      .listDirectory(fs.cwd)
-      .filter((c) => !c.name.startsWith(".")).length;
+    itemCount = fs.listDirectory(fs.cwd).filter((c) => !c.name.startsWith(".")).length;
   } catch {
     // ignore
   }
 
   return (
     <div
-      className="flex flex-col h-full rounded-lg overflow-hidden border border-card-border bg-bg-finder shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)]"
+      className="flex flex-col h-full rounded-lg overflow-hidden border border-card-border bg-bg-finder shadow-window"
       onClick={onFocus}
     >
       {/* Title bar — draggable handle */}
@@ -53,11 +52,7 @@ export function FinderWindow({ fs, version, onFocus, onNavigate }: FinderWindowP
         data-drag-handle
         className="flex items-center gap-2 px-3 py-2 bg-finder-toolbar border-b border-card-border cursor-grab active:cursor-grabbing select-none"
       >
-        <div className="flex gap-[6px]">
-          <div className="w-[12px] h-[12px] rounded-full bg-[#ff5f57] border border-[#e0443e]/50" />
-          <div className="w-[12px] h-[12px] rounded-full bg-[#febc2e] border border-[#d4a123]/50" />
-          <div className="w-[12px] h-[12px] rounded-full bg-[#28c840] border border-[#1aab29]/50" />
-        </div>
+        <TrafficLights />
         {/* Nav arrows */}
         <div className="flex gap-1 ml-1">
           <ChevronLeft size={14} strokeWidth={1.5} className="text-text-muted/40" />
@@ -69,18 +64,10 @@ export function FinderWindow({ fs, version, onFocus, onNavigate }: FinderWindowP
             {crumbs.map((crumb, i) => (
               <span key={crumb.path} className="flex items-center gap-1">
                 {i > 0 && (
-                  <ChevronRight
-                    size={10}
-                    strokeWidth={1.5}
-                    className="text-text-muted/40"
-                  />
+                  <ChevronRight size={10} strokeWidth={1.5} className="text-text-muted/40" />
                 )}
                 <span
-                  className={
-                    i === crumbs.length - 1
-                      ? "text-text font-medium"
-                      : "text-text-muted"
-                  }
+                  className={i === crumbs.length - 1 ? "text-text font-medium" : "text-text-muted"}
                 >
                   {crumb.name}
                 </span>

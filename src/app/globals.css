@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ── Dark mode (default) — using Anthropic dark base ── */
-:root, .dark {
+:root,
+.dark {
   --background: #141413;
   --foreground: #e8e6dc;
   --bg: #141413;
@@ -14,7 +17,7 @@
   --finder-sidebar-val: #181817;
   --finder-toolbar-val: #242423;
   --card-bg: #1a1a19;
-  --card-border: rgba(255,255,255,0.06);
+  --card-border: rgba(255, 255, 255, 0.06);
   --section-bg: #111110;
 }
 
@@ -68,6 +71,25 @@
   --color-term-red: #f87171;
   --color-term-magenta: #c084fc;
 
+  /* Terminal chrome */
+  --color-term-text: #cccccc;
+  --color-term-prompt: #33ff00;
+  --color-term-bg: #1c1c1e;
+  --color-term-titlebar: #2a2a2c;
+  --color-term-dim: #9e9e9e;
+
+  /* Window chrome traffic lights */
+  --color-traffic-red: #ff5f57;
+  --color-traffic-red-border: #e0443e;
+  --color-traffic-yellow: #febc2e;
+  --color-traffic-yellow-border: #d4a123;
+  --color-traffic-green: #28c840;
+  --color-traffic-green-border: #1aab29;
+
+  /* Window shadows */
+  --shadow-window: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+  --shadow-window-heavy: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+
   --color-finder-sidebar: var(--finder-sidebar-val);
   --color-finder-toolbar: var(--finder-toolbar-val);
   --color-finder-selected: rgba(74, 222, 128, 0.12);
@@ -75,60 +97,87 @@
   --color-card-bg: var(--card-bg);
   --color-card-border: var(--card-border);
   --color-section-bg: var(--section-bg);
+
+  /* Container */
+  --container-content: 1400px;
+
+  /* Animations */
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-scale-in: scale-in 0.25s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-cursor-blink: cursor-blink 1s step-end infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes cursor-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(-10px) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+  @keyframes matrix-rain {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", monospace;
+@layer base {
+  body {
+    @apply bg-background text-foreground font-mono antialiased;
+  }
 }
 
-/* ── Animations ── */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scale-in {
-  from { opacity: 0; transform: scale(0.85); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes cursor-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes confetti-fall {
-  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-@keyframes matrix-rain {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}
-
-.animate-fade-in { animation: fade-in 0.2s ease-out; }
-.animate-scale-in { animation: scale-in 0.25s ease-out; }
-.animate-slide-up { animation: slide-up 0.3s ease-out; }
-.animate-cursor-blink { animation: cursor-blink 1s step-end infinite; }
-
-/* ── Scrollbar styling for level slider ── */
-.hide-scrollbar {
+@utility hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* ── Terminal always dark ── */
-.terminal-always-dark {
+@utility terminal-always-dark {
   color: #e4e4e7;
 }
