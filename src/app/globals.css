@@ -1,26 +1,134 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── Dark mode (default) — using Anthropic dark base ── */
+:root, .dark {
+  --background: #141413;
+  --foreground: #e8e6dc;
+  --bg: #141413;
+  --bg-elevated: #1a1a19;
+  --bg-terminal: #1a1a1e;
+  --bg-finder: #1e1e1d;
+  --text-val: #e8e6dc;
+  --text-muted-val: #b0aea5;
+  --text-bright-val: #faf9f5;
+  --finder-sidebar-val: #181817;
+  --finder-toolbar-val: #242423;
+  --card-bg: #1a1a19;
+  --card-border: rgba(255,255,255,0.06);
+  --section-bg: #111110;
+}
+
+/* ── Light mode — Anthropic warm cream ── */
+.light {
+  --background: #faf9f5;
+  --foreground: #141413;
+  --bg: #faf9f5;
+  --bg-elevated: #ffffff;
+  --bg-terminal: #1a1a1e; /* terminal always dark */
+  --bg-finder: #ffffff;
+  --text-val: #141413;
+  --text-muted-val: #6b6963;
+  --text-bright-val: #0a0a09;
+  --finder-sidebar-val: #f3f2ee;
+  --finder-toolbar-val: #f3f2ee;
+  --card-bg: #ffffff;
+  --card-border: #e8e6dc;
+  --section-bg: #f3f2ee;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-terminal: var(--bg-terminal);
+  --color-bg-finder: var(--bg-finder);
+
+  --color-text: var(--text-val);
+  --color-text-muted: var(--text-muted-val);
+  --color-text-bright: var(--text-bright-val);
+
+  /* Terminal green accent */
+  --color-accent: #4ade80;
+  --color-accent-hover: #86efac;
+  --color-accent-dim: rgba(74, 222, 128, 0.12);
+  /* Anthropic orange for Claude-specific CTAs */
+  --color-claude: #d97757;
+  --color-claude-hover: #e08a6c;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #eab308;
+
+  --color-term-green: #4ade80;
+  --color-term-cyan: #22d3ee;
+  --color-term-blue: #60a5fa;
+  --color-term-yellow: #facc15;
+  --color-term-red: #f87171;
+  --color-term-magenta: #c084fc;
+
+  --color-finder-sidebar: var(--finder-sidebar-val);
+  --color-finder-toolbar: var(--finder-toolbar-val);
+  --color-finder-selected: rgba(74, 222, 128, 0.12);
+
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-section-bg: var(--section-bg);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-mono), ui-monospace, "SF Mono", "Cascadia Mono", monospace;
+}
+
+/* ── Animations ── */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes matrix-rain {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.animate-fade-in { animation: fade-in 0.2s ease-out; }
+.animate-scale-in { animation: scale-in 0.25s ease-out; }
+.animate-slide-up { animation: slide-up 0.3s ease-out; }
+.animate-cursor-blink { animation: cursor-blink 1s step-end infinite; }
+
+/* ── Scrollbar styling for level slider ── */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Terminal always dark ── */
+.terminal-always-dark {
+  color: #e4e4e7;
 }
