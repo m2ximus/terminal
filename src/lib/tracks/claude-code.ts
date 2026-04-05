@@ -1,4 +1,7 @@
 import { Track } from "./types";
+import { claudeLevel1 } from "@/lib/lessons/levels/level-claude-1";
+import { claudeLevel2 } from "@/lib/lessons/levels/level-claude-2";
+import { claudeLevel3 } from "@/lib/lessons/levels/level-claude-3";
 
 export const claudeCodeTrack: Track = {
   slug: "claude-code",
@@ -9,5 +12,5 @@ export const claudeCodeTrack: Track = {
   icon: "bot",
   color: "#d97757",
   prerequisites: ["terminal-basics", "git"],
-  levels: [],
+  levels: [claudeLevel1, claudeLevel2, claudeLevel3],
 };

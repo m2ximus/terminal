@@ -35,7 +35,7 @@ describe("tracks", () => {
 
   it("getAllTrackLevelPairs returns all track+level combinations", () => {
     const pairs = getAllTrackLevelPairs();
-    expect(pairs.length).toBe(7); // 5 terminal-basics + 2 terminal-advanced
+    expect(pairs.length).toBe(19); // 5 terminal-basics + 2 terminal-advanced + 5 git + 3 claude-code + 4 skills-agents
     expect(pairs[0]).toEqual({ trackSlug: "terminal-basics", levelSlug: "where-am-i" });
   });
 

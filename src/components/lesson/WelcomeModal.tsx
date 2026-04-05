@@ -9,8 +9,10 @@ export function WelcomeModal() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem(STORAGE_KEY)) {
-      setShow(true);
+    const seen = localStorage.getItem(STORAGE_KEY);
+    if (!seen) {
+      const id = requestAnimationFrame(() => setShow(true));
+      return () => cancelAnimationFrame(id);
     }
   }, []);
 
@@ -29,12 +31,8 @@ export function WelcomeModal() {
             <TerminalSquare size={20} strokeWidth={1.5} className="text-accent" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-text-bright">
-              Before you start
-            </h2>
-            <p className="text-xs text-text-muted">
-              Open your real terminal alongside this window
-            </p>
+            <h2 className="text-base font-bold text-text-bright">Before you start</h2>
+            <p className="text-xs text-text-muted">Open your real terminal alongside this window</p>
           </div>
         </div>
 
@@ -46,8 +44,7 @@ export function WelcomeModal() {
               <code className="bg-accent/15 border border-accent/30 px-1.5 py-0.5 rounded text-accent text-xs font-bold">
                 Cmd + Space
               </code>{" "}
-              and type <strong className="text-text-bright">Terminal</strong>,
-              then press Enter
+              and type <strong className="text-text-bright">Terminal</strong>, then press Enter
             </div>
           </div>
           <div className="flex items-start gap-3 bg-accent/5 border border-accent/10 rounded-lg p-3">
@@ -57,16 +54,15 @@ export function WelcomeModal() {
               <code className="bg-accent/15 border border-accent/30 px-1.5 py-0.5 rounded text-accent text-xs font-bold">
                 Win key
               </code>{" "}
-              and search for{" "}
-              <strong className="text-text-bright">Command Prompt</strong> or{" "}
+              and search for <strong className="text-text-bright">Command Prompt</strong> or{" "}
               <strong className="text-text-bright">PowerShell</strong>
             </div>
           </div>
         </div>
 
         <p className="text-xs text-text-muted mb-4">
-          Practice the commands here first, then try them for real.
-          You&apos;ll learn faster by doing both.
+          Practice the commands here first, then try them for real. You&apos;ll learn faster by
+          doing both.
         </p>
 
         <button

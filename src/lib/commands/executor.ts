@@ -25,7 +25,9 @@ import { which } from "./handlers/which";
 import { history } from "./handlers/history";
 import { open } from "./handlers/open";
 import { alias } from "./handlers/alias";
-import { npm, npx, git, claudeCode } from "./handlers/level8";
+import { npm, npx } from "./handlers/level8";
+import { git } from "./handlers/git";
+import { claudeCode } from "./handlers/claude";
 
 const ALL_COMMANDS: Record<string, CommandHandler> = {
   pwd,
@@ -97,6 +99,7 @@ export class CommandExecutor {
         flags: parsed.flags,
         stdin: parsed.stdin,
         history: this.commandHistory,
+        availableCommands,
       });
 
       // Handle redirect

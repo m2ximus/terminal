@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Level } from "@/lib/tracks/types";
 import { LevelIcon } from "@/lib/level-icons";
 import { CheckCircle, ArrowRight } from "lucide-react";
@@ -13,6 +14,8 @@ interface LevelCompleteProps {
   onComplete: () => void;
 }
 
+const CONFETTI_COLORS = ["#4ade80", "#22c55e", "#86efac", "#16a34a", "#22d3ee", "#a7f3d0"];
+
 export function LevelComplete({
   level,
   trackSlug,
@@ -20,23 +23,21 @@ export function LevelComplete({
   nextLevel,
   onComplete,
 }: LevelCompleteProps) {
+  const [confettiParticles] = useState(() =>
+    Array.from({ length: 20 }, (_, i) => ({
+      left: `${Math.random() * 100}%`,
+      top: `-${Math.random() * 10}%`,
+      backgroundColor: CONFETTI_COLORS[i % 6],
+      animation: `confetti-fall ${2 + Math.random() * 2}s ${Math.random() * 0.5}s ease-in forwards`,
+    })),
+  );
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
       {/* Confetti particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 rounded-sm"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `-${Math.random() * 10}%`,
-              backgroundColor: ["#4ade80", "#22c55e", "#86efac", "#16a34a", "#22d3ee", "#a7f3d0"][
-                i % 6
-              ],
-              animation: `confetti-fall ${2 + Math.random() * 2}s ${Math.random() * 0.5}s ease-in forwards`,
-            }}
-          />
+        {confettiParticles.map((style, i) => (
+          <div key={i} className="absolute w-2 h-2 rounded-sm" style={style} />
         ))}
       </div>
 

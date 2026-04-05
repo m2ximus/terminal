@@ -9,7 +9,8 @@ import { loadProgress, ProgressData } from "@/lib/progress";
 function useProgress() {
   const [progress, setProgress] = useState<ProgressData | null>(null);
   useEffect(() => {
-    setProgress(loadProgress());
+    const id = requestAnimationFrame(() => setProgress(loadProgress()));
+    return () => cancelAnimationFrame(id);
   }, []);
   return progress;
 }

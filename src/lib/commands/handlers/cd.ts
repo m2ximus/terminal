@@ -1,5 +1,4 @@
 import { CommandHandler } from "../types";
-import { HOME } from "@/lib/filesystem/VirtualFS";
 
 export const cd: CommandHandler = ({ fs, args }) => {
   const target = args[0] || "~";

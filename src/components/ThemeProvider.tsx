@@ -23,9 +23,7 @@ export function useTheme() {
 function resolveTheme(t: Theme): "light" | "dark" {
   if (t === "system") {
     if (typeof window === "undefined") return "dark";
-    return window.matchMedia("(prefers-color-scheme: light)").matches
-      ? "light"
-      : "dark";
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   }
   return t;
 }
@@ -44,10 +42,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem("theme") as Theme | null;
     const initial = stored || "dark";
-    setThemeState(initial);
     const effective = resolveTheme(initial);
-    setResolved(effective);
     applyToDOM(effective);
+    // Schedule state updates via callback to satisfy react-hooks/set-state-in-effect
+    const id = requestAnimationFrame(() => {
+      if (initial !== "dark") setThemeState(initial);
+      if (effective !== "dark") setResolved(effective);
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
 
   const setTheme = useCallback((t: Theme) => {
@@ -72,8 +74,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, resolved }}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={{ theme, setTheme, resolved }}>{children}</ThemeContext.Provider>
   );
 }

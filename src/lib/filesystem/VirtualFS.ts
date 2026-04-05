@@ -1,4 +1,4 @@
-import { FSNode, FSFile, FSDirectory, GrepResult } from "./types";
+import { FSNode, FSDirectory, GrepResult } from "./types";
 
 export const HOME = "/Users/learner";
 
@@ -55,8 +55,7 @@ export class VirtualFS {
     const resolved = this.resolvePath(path);
     const node = this.nodes.get(resolved);
     if (!node) throw new Error(`cd: no such file or directory: ${path}`);
-    if (node.type !== "directory")
-      throw new Error(`cd: not a directory: ${path}`);
+    if (node.type !== "directory") throw new Error(`cd: not a directory: ${path}`);
     this._cwd = resolved;
     this.notify();
   }
@@ -126,9 +125,7 @@ export class VirtualFS {
     } else {
       const parentPath = getParent(path);
       if (!this.nodes.has(parentPath)) {
-        throw new Error(
-          `No such file or directory: ${parentPath}`
-        );
+        throw new Error(`No such file or directory: ${parentPath}`);
       }
       this.nodes.set(path, mkDir(basename(path)));
     }
@@ -278,10 +275,7 @@ export class VirtualFS {
 
   // ── Search operations ──
 
-  find(
-    startPath: string,
-    namePattern: string
-  ): string[] {
+  find(startPath: string, namePattern: string): string[] {
     const results: string[] = [];
     const prefix = startPath === "/" ? "/" : startPath + "/";
     const regex = globToRegex(namePattern);
@@ -296,11 +290,7 @@ export class VirtualFS {
     return results.sort();
   }
 
-  grep(
-    path: string,
-    pattern: RegExp,
-    recursive = false
-  ): GrepResult[] {
+  grep(path: string, pattern: RegExp, recursive = false): GrepResult[] {
     const results: GrepResult[] = [];
 
     const searchFile = (filePath: string) => {

@@ -31,8 +31,8 @@ export const npm: CommandHandler = ({ fs, args }) => {
           scripts: { start: "node index.js", test: 'echo "No tests yet"' },
         },
         null,
-        2
-      ) + "\n"
+        2,
+      ) + "\n",
     );
     return {
       output: "Wrote to package.json\n\npackage.json created successfully!",
@@ -79,10 +79,16 @@ export const npx: CommandHandler = ({ fs, args }) => {
     fs.createDirectory(appPath + "/public");
     fs.createFile(
       appPath + "/package.json",
-      JSON.stringify({ name: appName, version: "0.1.0", private: true }, null, 2) + "\n"
+      JSON.stringify({ name: appName, version: "0.1.0", private: true }, null, 2) + "\n",
     );
-    fs.createFile(appPath + "/src/app/page.tsx", "export default function Home() {\n  return <h1>Hello World</h1>;\n}\n");
-    fs.createFile(appPath + "/src/app/layout.tsx", "export default function RootLayout({ children }) {\n  return <html><body>{children}</body></html>;\n}\n");
+    fs.createFile(
+      appPath + "/src/app/page.tsx",
+      "export default function Home() {\n  return <h1>Hello World</h1>;\n}\n",
+    );
+    fs.createFile(
+      appPath + "/src/app/layout.tsx",
+      "export default function RootLayout({ children }) {\n  return <html><body>{children}</body></html>;\n}\n",
+    );
     fs.createFile(appPath + "/README.md", `# ${appName}\n\nThis is a Next.js project.\n`);
 
     return {
@@ -106,98 +112,6 @@ export const npx: CommandHandler = ({ fs, args }) => {
 
   return {
     output: `npx ${args.join(" ")} - command simulated`,
-    outputType: "info",
-  };
-};
-
-export const git: CommandHandler = ({ fs, args }) => {
-  if (args.length === 0) {
-    return {
-      output: [
-        "git - version control",
-        "",
-        "Common commands:",
-        "  git init       Initialize a new repository",
-        "  git add .      Stage all changes",
-        "  git commit -m  Create a commit",
-        "  git status     Show working tree status",
-        "  git log        Show commit history",
-      ].join("\n"),
-      outputType: "stdout",
-    };
-  }
-
-  if (args[0] === "init") {
-    const gitDir = fs.resolvePath(".git");
-    if (!fs.exists(gitDir)) {
-      fs.createDirectory(gitDir);
-      fs.createFile(gitDir + "/HEAD", "ref: refs/heads/main\n");
-      fs.createFile(gitDir + "/config", "[core]\n  repositoryformatversion = 0\n");
-    }
-    return {
-      output: `Initialized empty Git repository in ${fs.cwd}/.git/`,
-      outputType: "success",
-    };
-  }
-
-  if (args[0] === "add") {
-    return { output: "", outputType: "stdout" };
-  }
-
-  if (args[0] === "commit") {
-    const msgIdx = args.indexOf("-m");
-    const message = msgIdx !== -1 && args[msgIdx + 1] ? args[msgIdx + 1] : "Initial commit";
-    return {
-      output: `[main (root-commit) a1b2c3d] ${message}\n 3 files changed, 42 insertions(+)`,
-      outputType: "stdout",
-    };
-  }
-
-  if (args[0] === "status") {
-    return {
-      output: "On branch main\nnothing to commit, working tree clean",
-      outputType: "stdout",
-    };
-  }
-
-  if (args[0] === "log") {
-    return {
-      output: "commit a1b2c3d (HEAD -> main)\nAuthor: learner <learner@example.com>\nDate:   Today\n\n    Initial commit",
-      outputType: "stdout",
-    };
-  }
-
-  return {
-    output: `git ${args.join(" ")} - command simulated`,
-    outputType: "info",
-  };
-};
-
-export const claudeCode: CommandHandler = ({ args }) => {
-  if (args.length === 0) {
-    return {
-      output: [
-        "  ╔═══════════════════════════════════════╗",
-        "  ║                                       ║",
-        "  ║   Welcome to Claude Code!              ║",
-        "  ║                                       ║",
-        "  ║   You've completed the terminal        ║",
-        "  ║   tutorial! You're now ready to use    ║",
-        "  ║   Claude Code like a pro.              ║",
-        "  ║                                       ║",
-        "  ║   Install: npm install -g @anthropic-ai/claude-code",
-        "  ║   Run:     claude                      ║",
-        "  ║                                       ║",
-        "  ╚═══════════════════════════════════════╝",
-        "",
-        "Type 'help' for available commands.",
-      ].join("\n"),
-      outputType: "success",
-    };
-  }
-
-  return {
-    output: `claude ${args.join(" ")} - simulated`,
     outputType: "info",
   };
 };

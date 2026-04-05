@@ -1,6 +1,6 @@
 import { CommandHandler } from "../types";
 
-export const findCmd: CommandHandler = ({ fs, args, flags }) => {
+export const findCmd: CommandHandler = ({ fs, args }) => {
   let startPath = fs.cwd;
   let namePattern = "*";
 

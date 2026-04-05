@@ -16,6 +16,7 @@ export interface CommandContext {
   flags: Record<string, boolean>;
   stdin?: string;
   history: string[];
+  availableCommands: string[];
 }
 
 export type OutputType = "stdout" | "stderr" | "info" | "success";

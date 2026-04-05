@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { VirtualFS } from "@/lib/filesystem/VirtualFS";
 import { Level } from "@/lib/tracks/types";
 import { LessonEngine, ValidationResult } from "@/lib/lessons/engine";
@@ -8,13 +8,12 @@ import { parseCommand } from "@/lib/commands/parser";
 import { saveTaskProgress, incrementCommands } from "@/lib/progress";
 
 export function useLesson(level: Level, trackSlug: string, fs: VirtualFS) {
-  const engineRef = useRef<LessonEngine>(new LessonEngine(level));
+  const [engine] = useState(() => new LessonEngine(level));
   const [taskIndex, setTaskIndex] = useState(0);
   const [lastResult, setLastResult] = useState<ValidationResult | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-
-  const engine = engineRef.current;
+  const [currentTask, setCurrentTask] = useState(engine.currentTask);
 
   // Restore task progress
   useEffect(() => {
@@ -26,7 +25,11 @@ export function useLesson(level: Level, trackSlug: string, fs: VirtualFS) {
         const saved = data.tracks?.[trackSlug]?.taskProgress?.[level.slug];
         if (saved && saved > 0) {
           engine.setTaskIndex(saved);
-          setTaskIndex(saved);
+          const id = requestAnimationFrame(() => {
+            setTaskIndex(saved);
+            setCurrentTask(engine.currentTask);
+          });
+          return () => cancelAnimationFrame(id);
         }
       }
     } catch {
@@ -50,6 +53,7 @@ export function useLesson(level: Level, trackSlug: string, fs: VirtualFS) {
         setShowHint(false);
         const newIndex = engine.currentTaskIndex;
         setTaskIndex(newIndex);
+        setCurrentTask(engine.currentTask);
         saveTaskProgress(trackSlug, level.slug, newIndex);
 
         if (engine.isComplete) {
@@ -63,13 +67,13 @@ export function useLesson(level: Level, trackSlug: string, fs: VirtualFS) {
   );
 
   return {
-    currentTask: engine.currentTask,
+    currentTask,
     taskIndex,
     totalTasks: level.tasks.length,
     lastResult,
     showHint,
     isComplete,
     validateCommand,
-    hint: engine.currentTask?.hint || null,
+    hint: currentTask?.hint || null,
   };
 }

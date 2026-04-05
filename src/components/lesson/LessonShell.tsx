@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/refs -- useDraggable returns ref-derived values by design (direct DOM manipulation for drag performance) */
 
 import { useCallback, useState, useEffect } from "react";
 import { Level } from "@/lib/tracks/types";

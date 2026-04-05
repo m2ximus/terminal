@@ -1,4 +1,9 @@
 import { Track } from "./types";
+import { gitLevel1 } from "@/lib/lessons/levels/level-git-1";
+import { gitLevel2 } from "@/lib/lessons/levels/level-git-2";
+import { gitLevel3 } from "@/lib/lessons/levels/level-git-3";
+import { gitLevel4 } from "@/lib/lessons/levels/level-git-4";
+import { gitLevel5 } from "@/lib/lessons/levels/level-git-5";
 
 export const gitTrack: Track = {
   slug: "git",
@@ -9,5 +14,5 @@ export const gitTrack: Track = {
   icon: "git-branch",
   color: "#f97316",
   prerequisites: ["terminal-basics"],
-  levels: [],
+  levels: [gitLevel1, gitLevel2, gitLevel3, gitLevel4, gitLevel5],
 };

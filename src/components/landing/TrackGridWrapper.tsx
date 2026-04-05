@@ -9,7 +9,8 @@ export function TrackGridWrapper() {
   const [progress, setProgress] = useState<ProgressData | null>(null);
 
   useEffect(() => {
-    setProgress(loadProgress());
+    const id = requestAnimationFrame(() => setProgress(loadProgress()));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   return <TrackGrid tracks={tracks} progress={progress} />;

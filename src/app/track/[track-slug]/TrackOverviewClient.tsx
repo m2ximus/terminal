@@ -13,7 +13,8 @@ import { LevelList } from "@/components/track/LevelList";
 function useProgress(trackSlug: string) {
   const [progress, setProgress] = useState<ProgressData | null>(null);
   useEffect(() => {
-    setProgress(loadProgress());
+    const id = requestAnimationFrame(() => setProgress(loadProgress()));
+    return () => cancelAnimationFrame(id);
   }, [trackSlug]);
   return progress;
 }

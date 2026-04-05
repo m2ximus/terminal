@@ -27,7 +27,7 @@ describe("progress", () => {
         Object.keys(store).forEach((k) => delete store[k]);
       },
       length: 0,
-      key: (_i: number) => null as string | null,
+      key: (): string | null => null,
     };
     // @ts-expect-error - minimal window mock for testing
     globalThis.window = { localStorage: mock };

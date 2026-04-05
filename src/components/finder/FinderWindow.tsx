@@ -8,7 +8,7 @@ import { TrafficLights } from "@/components/ui/TrafficLights";
 
 interface FinderWindowProps {
   fs: VirtualFS;
-  version: number;
+  version?: number;
   onFocus?: () => void;
   onNavigate?: (path: string) => void;
 }
@@ -33,7 +33,7 @@ function getBreadcrumbs(cwd: string): { name: string; path: string }[] {
   return crumbs;
 }
 
-export function FinderWindow({ fs, version, onFocus, onNavigate }: FinderWindowProps) {
+export function FinderWindow({ fs, onFocus, onNavigate }: FinderWindowProps) {
   const crumbs = getBreadcrumbs(fs.cwd);
   let itemCount = 0;
   try {

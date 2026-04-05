@@ -1,5 +1,4 @@
 import { CommandHandler } from "../types";
-import { HOME } from "@/lib/filesystem/VirtualFS";
 
 export const ls: CommandHandler = ({ fs, args, flags }) => {
   const target = args[0] ? fs.resolvePath(args[0]) : fs.cwd;
@@ -17,9 +16,7 @@ export const ls: CommandHandler = ({ fs, args, flags }) => {
   const showHidden = flags.a || flags.all;
   const longFormat = flags.l;
 
-  let filtered = showHidden
-    ? children
-    : children.filter((c) => !c.name.startsWith("."));
+  const filtered = showHidden ? children : children.filter((c) => !c.name.startsWith("."));
 
   if (longFormat) {
     const lines: string[] = [];
@@ -31,7 +28,12 @@ export const ls: CommandHandler = ({ fs, args, flags }) => {
       const perm = node.type === "directory" ? "d" + node.permissions : "-" + node.permissions;
       const size = node.type === "file" ? String(node.content.length).padStart(6) : "    --";
       const date = new Date(node.modifiedAt);
-      const dateStr = date.toLocaleDateString("en-US", { month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+      const dateStr = date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
       lines.push(`${perm}  ${size}  ${dateStr}  ${name}`);
     }
     return { output: lines.join("\n"), outputType: "stdout" };

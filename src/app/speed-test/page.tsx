@@ -76,7 +76,9 @@ export default function SpeedTestPage() {
   const terminal = useTerminal(fs, ALL_COMMANDS);
 
   useEffect(() => {
-    setLeaderboard(loadLeaderboard());
+    // Load from localStorage (external system) — update via scheduled callback
+    const id = requestAnimationFrame(() => setLeaderboard(loadLeaderboard()));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   const startGame = useCallback(() => {
